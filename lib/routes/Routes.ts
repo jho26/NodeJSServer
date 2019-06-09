@@ -8,6 +8,8 @@ import {OrderModel} from "../models/OrderModel";
 
 import * as express from 'express';
 
+var passport = require('passport');
+
 
 export class Routes {       
 
@@ -29,17 +31,32 @@ export class Routes {
         this.menuitem = new MenuItemModel();
         this.menuitemcat = new MenuItemCategoryModel();
     }
+	
+	private validateAuth(req, res, next):void {
+        if (req.isAuthenticated()) { console.log("user is authenticated"); return next(); }
+        console.log("user is not authenticated");
+        res.redirect('/');
+
+      }
 
     public routes(app): void { 
-       
-       /*app.route('/').get((req: Request, res: Response) => {            
-            res.status(200).send({
-                message: 'Waytless!!!!'
-            })
-        }) */
-        
-            app.use('/', express.static(__dirname+'/angularDist'));
-            //get all  menuItems 
+
+        app.use('/', express.static(__dirname+'/angularDist'));
+		
+		app.get('/auth/google', 
+        passport.authenticate('google', 
+            
+            { scope: ['https://www.googleapis.com/auth/plus.login', 'email'] }
+        )
+    );
+
+    app.get('/auth/google/callback', 
+        passport.authenticate('google', 
+            { successRedirect: '/#/home', failureRedirect: '/'
+            }
+        )
+    );
+         //get all  menuItems 
             app.route('/menuitems/:restId').get((req: Request, res: Response) => {
                 var restId = req.params.restId;
                 console.log("Get all menuItems for rest id :"+restId);
@@ -132,7 +149,6 @@ export class Routes {
         // to get all the waitlist entries
         app.route('/waitlist/').get((req: Request, res: Response) => {
             console.log('Query all wait lists');
-
             this.waitlist.retrieveAllWaitlists(res);
         })
 
@@ -324,13 +340,6 @@ export class Routes {
             }
 
             this.order.updateQuantity(res,searchCriteria,toBeChanged);
-        })
-
-        app.route('/waitlist/:restaurantID/complete/:queueID').post((req:Request,res:Response) => {
-            var restaurantId = req.params.restaurantID;
-            var queueID = req.params.queueID;
-            console.log("Complete a reservation: " + queueID + " in " + restaurantId);
-            this.waitlist.completeRes(res, {restaurantID:restaurantId, queueID:queueID});
         })
 
        
