@@ -61,17 +61,7 @@ export class Routes {
     );
 
     app.get('/user/details', this.validateAuth,function(req,res){
-        var json = {
-            y: {
-                "name": [],
-                "email": [],
-            }
-        };
-        // put new variables in JSON
-        json.y.name = req.user;
-        json.y.email = req.email;
-
-        res.json(json);
+        res.json(req.user);
     })
 
          //get all  menuItems 
