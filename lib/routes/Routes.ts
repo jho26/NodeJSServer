@@ -7,12 +7,18 @@ import { MenuItemCategoryModel } from "../models/MenuItemCategoryModel";
 import {OrderModel} from "../models/OrderModel";
 
 import * as express from 'express';
+import * as logger from 'morgan';
+import * as path from 'path';
+import * as url from 'url';
+import * as bodyParser from 'body-parser';
+import * as session from 'express-session';
 
 var passport = require('passport');
 
 
 export class Routes {       
 
+    public expressApp: express.Application;
     public waitlist:WaitlistEntryModel;
     public order:OrderModel;
     public restaurantlist:RestaurantModel;
@@ -30,8 +36,20 @@ export class Routes {
         this.restaurantlist = new RestaurantModel();
         this.menuitem = new MenuItemModel();
         this.menuitemcat = new MenuItemCategoryModel();
+        this.middleware();
+        this.routes();
     }
-	
+    
+      // Configure Express middleware.
+    private middleware(): void {
+        this.expressApp.use(logger('dev'));
+        this.expressApp.use(bodyParser.json());
+        this.expressApp.use(bodyParser.urlencoded({ extended: false }));
+        this.expressApp.use(session({ secret: 'keyboard cat' }));
+        this.expressApp.use(passport.initialize());
+        this.expressApp.use(passport.session());
+    }
+
 	private validateAuth(req, res, next):void {
         if (req.isAuthenticated()) { console.log("user is authenticated"); return next(); }
         console.log("user is not authenticated");
@@ -39,7 +57,9 @@ export class Routes {
 
       }
 
-    public routes(app): void { 
+    public routes(): void { 
+
+        let app = express.Router();
 
         app.use('/', express.static(__dirname+'/angularDist'));
 		
@@ -147,7 +167,7 @@ export class Routes {
             })
 
         // to get all the waitlist entries
-        app.route('/waitlist/').get((req: Request, res: Response) => {
+        app.get('/waitlist/', this.validateAuth, (req, res) => {
             console.log('Query all wait lists');
             this.waitlist.retrieveAllWaitlists(res);
         })

@@ -10,7 +10,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/express-session": "^1.15.12",
     "@types/mongoose": "^5.5.0",
+    "@types/morgan": "^1.7.35",
     "async": "^2.6.2",
     "body-parser": "^1.19.0",
     "chai": "^4.2.0",
