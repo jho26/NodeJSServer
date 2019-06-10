@@ -7,11 +7,6 @@ import { MenuItemCategoryModel } from "../models/MenuItemCategoryModel";
 import {OrderModel} from "../models/OrderModel";
 
 import * as express from 'express';
-import * as logger from 'morgan';
-import * as path from 'path';
-import * as url from 'url';
-import * as bodyParser from 'body-parser';
-import * as session from 'express-session';
 
 var passport = require('passport');
 
@@ -40,8 +35,7 @@ export class Routes {
         if (req.isAuthenticated()) { console.log("user is authenticated"); return next(); }
         console.log("user is not authenticated");
         res.redirect('/');
-
-      }
+    }
 
     public routes(app): void { 
 
