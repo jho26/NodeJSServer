@@ -1,9 +1,9 @@
 import {Request, Response} from "express";
 import {WaitlistEntryModel} from "../models/waitlistEntryModel"
 import {MenuItemModel} from "../models/MenuItemModel"
-import { RestaurantModel } from "../models/RestaurantModel";
+import {RestaurantModel } from "../models/RestaurantModel";
 import {CustomerModel} from "../models/CustomerModel";
-import { MenuItemCategoryModel } from "../models/MenuItemCategoryModel";
+import {MenuItemCategoryModel } from "../models/MenuItemCategoryModel";
 import {OrderModel} from "../models/OrderModel";
 
 import * as express from 'express';
@@ -58,6 +58,7 @@ export class Routes {
             }
         )
     );
+
          //get all  menuItems 
             app.route('/menuitems/:restId').get((req: Request, res: Response) => {
                 var restId = req.params.restId;
@@ -159,6 +160,7 @@ export class Routes {
 
         // to get all the waitlist entries in a restaurant
         app.route('/waitlist/:restId').get(this.validateAuth, (req: Request, res: Response) => {
+            console.log(res.locals.auth);
             var restuarantId = req.params.restId;
             console.log("Query all waitlist items from restaurant with id: " + restuarantId);
             this.waitlist.retrieveAllWaitlistEntriesPerRestaurant(res, restuarantId);
