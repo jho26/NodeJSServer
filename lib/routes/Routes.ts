@@ -29,6 +29,7 @@ export class Routes {
 
     constructor(){
         this.waitlist = new WaitlistEntryModel();
+        this.expressApp = express();
         this.order = new OrderModel();
         //this.menuItem = new MenuItemModel();
         this.idGenerator = 100;
