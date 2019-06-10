@@ -8,6 +8,7 @@ import {OrderModel} from "../models/OrderModel";
 
 import * as express from 'express';
 
+
 var passport = require('passport');
 
 
@@ -58,6 +59,20 @@ export class Routes {
             }
         )
     );
+
+    app.get('/user/details', this.validateAuth,function(req,res){
+        var json = {
+            y: {
+                "name": [],
+                "email": [],
+            }
+        };
+        // put new variables in JSON
+        json.y.name = req.user;
+        json.y.email = req.email;
+
+        res.json(json);
+    })
 
          //get all  menuItems 
             app.route('/menuitems/:restId').get((req: Request, res: Response) => {
