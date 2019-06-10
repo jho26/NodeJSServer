@@ -16,9 +16,7 @@ import * as session from 'express-session';
 var passport = require('passport');
 
 
-export class Routes {       
-
-    public expressApp: express.Application;
+export class Routes {
     public waitlist:WaitlistEntryModel;
     public order:OrderModel;
     public restaurantlist:RestaurantModel;
@@ -29,7 +27,6 @@ export class Routes {
 
     constructor(){
         this.waitlist = new WaitlistEntryModel();
-        this.expressApp = express();
         this.order = new OrderModel();
         //this.menuItem = new MenuItemModel();
         this.idGenerator = 100;
@@ -37,18 +34,6 @@ export class Routes {
         this.restaurantlist = new RestaurantModel();
         this.menuitem = new MenuItemModel();
         this.menuitemcat = new MenuItemCategoryModel();
-        this.middleware();
-        this.routes();
-    }
-    
-      // Configure Express middleware.
-    private middleware(): void {
-        this.expressApp.use(logger('dev'));
-        this.expressApp.use(bodyParser.json());
-        this.expressApp.use(bodyParser.urlencoded({ extended: false }));
-        this.expressApp.use(session({ secret: 'keyboard cat' }));
-        this.expressApp.use(passport.initialize());
-        this.expressApp.use(passport.session());
     }
 
 	private validateAuth(req, res, next):void {
@@ -58,9 +43,7 @@ export class Routes {
 
       }
 
-    public routes(): void { 
-
-        let app = express.Router();
+    public routes(app): void { 
 
         app.use('/', express.static(__dirname+'/angularDist'));
 		
@@ -168,7 +151,8 @@ export class Routes {
             })
 
         // to get all the waitlist entries
-        app.get('/waitlist/', this.validateAuth, (req, res) => {
+
+        app.route('/waitlist/').get(this.validateAuth, (req: Request, res: Response) => {
             console.log('Query all wait lists');
             this.waitlist.retrieveAllWaitlists(res);
         })
