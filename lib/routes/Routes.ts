@@ -45,7 +45,11 @@ export class Routes {
         passport.authenticate('google', 
             
             { scope: ['https://www.googleapis.com/auth/plus.login', 'email'] }
-        )
+        ), (req, res) => {
+            console.log('wooo we authenticated, here is our user object:', req.user);
+            // Send the user data back to the browser for now
+            res.json(req.user);
+        }
     );
 
     app.get('/auth/google/callback', 
