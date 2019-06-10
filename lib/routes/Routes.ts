@@ -150,6 +150,8 @@ export class Routes {
                 this.menuitem.updateMenuBaseOnRestaurantAndMenuId(res,searchCriteria,toBeChanged);
             })
 
+
+        // ------------------------------- WAIT LIST START ---------------------------- //    
         // to get all the waitlist entries
 
         app.route('/waitlist/').get(this.validateAuth, (req: Request, res: Response) => {
@@ -157,9 +159,15 @@ export class Routes {
             this.waitlist.retrieveAllWaitlists(res);
         })
 
+        // to get all the waitlist entries in a restaurant
+        app.route('/waitlist/:restId').get(this.validateAuth, (req: Request, res: Response) => {
+            var restuarantId = req.params.restId;
+            console.log("Query all waitlist items from restaurant with id: " + restuarantId);
+            this.waitlist.retrieveAllWaitlistEntriesPerRestaurant(res, restuarantId);
+        })
 
         // set customer as notifed in waitlist
-        app.route('/waitlist/:restaurantID/notify/:queueID').get((req:Request,res:Response) => {
+        app.route('/waitlist/:restaurantID/notify/:queueID').get(this.validateAuth, (req: Request, res: Response) => {
             var restaurantId = req.params.restaurantID;
             var queueID = req.params.queueID;
             console.log("Set customer as notified for " + queueID + " in " + restaurantId);
@@ -175,7 +183,7 @@ export class Routes {
         })
         
         // remove reservation in waitlist
-        app.route('/waitlist/:restaurantID/:queueID').delete((req:Request,res:Response) => {
+        app.route('/waitlist/:restaurantID/:queueID').delete(this.validateAuth, (req: Request, res: Response) => {
             var restaurantId = req.params.restaurantID;
             var queueID = req.params.queueID;
             console.log("Removing reservation: " + queueID + " in " + restaurantId);
@@ -183,7 +191,7 @@ export class Routes {
         })
 
         // complete a reservation in waitlist
-        app.route('/waitlist/:restaurantID/complete/:queueID').post((req:Request,res:Response) => {
+        app.route('/waitlist/:restaurantID/complete/:queueID').post(this.validateAuth, (req: Request, res: Response) => {
             var restaurantId = req.params.restaurantID;
             var queueID = req.params.queueID;
             console.log("Complete a reservation: " + queueID + " in " + restaurantId);
@@ -192,7 +200,7 @@ export class Routes {
 
 
         // update group size for reservation in waitlist
-        app.route('/waitlist/:restaurantID/:queueID').patch((req:Request,res:Response) => {
+        app.route('/waitlist/:restaurantID/:queueID').patch(this.validateAuth, (req: Request, res: Response) => {
             var restaurantId = req.params.restaurantID;
             var queueID = req.params.queueID;
             var groupSize = req.body.groupSize;
@@ -211,12 +219,7 @@ export class Routes {
             this.waitlist.updateGroupSize(res, searchCriteria, toBeChanged);
         })
 
-        // to get all the waitlist entries in a restaurant
-        app.route('/waitlist/:restId').get((req: Request, res: Response) => {
-            var restuarantId = req.params.restId;
-            console.log("Query all waitlist items from restaurant with id: " + restuarantId);
-            this.waitlist.retrieveAllWaitlistEntriesPerRestaurant(res, restuarantId);
-        })
+        // ------------------------------- WAIT LIST END ---------------------------- // 
 
         //get all customers
         app.route('/customers').get((req: Request, res: Response) => {
