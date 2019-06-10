@@ -164,7 +164,7 @@ export class Routes {
         })
 
         // to get all the waitlist entries in a restaurant
-        app.route('/waitlist/:restId').get(this.validateAuth, (req: Request, res: Response) => {
+        app.route('/waitlist/:restId').get((req: Request, res: Response) => {
             console.log(res.locals.auth);
             var restuarantId = req.params.restId;
             console.log("Query all waitlist items from restaurant with id: " + restuarantId);
