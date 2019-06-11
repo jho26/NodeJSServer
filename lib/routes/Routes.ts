@@ -64,6 +64,17 @@ export class Routes {
         res.json(req.user);
     })
 
+    app.get('/logout', function (req, res) {
+        console.log("Inside log out route");
+        req.logout();
+        delete req.user;
+        req.session.destroy(function (err) {
+            console.log("Inside session destroy");
+            res.clearCookie('connect.sid');
+            res.redirect('/#/login');
+        });
+    });
+
          //get all  menuItems 
             app.route('/menuitems/:restId').get((req: Request, res: Response) => {
                 var restId = req.params.restId;
