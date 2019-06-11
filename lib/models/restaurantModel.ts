@@ -21,6 +21,7 @@ class RestaurantModel {
                 phoneNumber: {type:Number, required: true},
                 rating:Number,
                 email:String,
+                owner: String,
                 cuisine:String,
                 reviews:Number,
                 booked:Number,
