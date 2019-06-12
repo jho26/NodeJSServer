@@ -76,5 +76,15 @@ class RestaurantModel {
 
     }
     
+    public updateBooktime(search_criteria:any){
+        this.model.findOneAndUpdate(search_criteria, {$inc: { booked: 1}}, {new: true }, (err) =>{
+            console.log("In updateBooktime");
+            if (err){
+                console.log("Error while updating booked time");
+            }
+            console.log("Updated booked time for restaurant.");
+        });
+    }
+    
 }
 export {RestaurantModel};

@@ -1,18 +1,18 @@
 import {Request, Response} from "express";
 import {WaitlistEntryModel} from "../models/waitlistEntryModel"
 import {MenuItemModel} from "../models/MenuItemModel"
-import {RestaurantModel } from "../models/RestaurantModel";
+import { RestaurantModel } from "../models/RestaurantModel";
 import {CustomerModel} from "../models/CustomerModel";
-import {MenuItemCategoryModel } from "../models/MenuItemCategoryModel";
+import { MenuItemCategoryModel } from "../models/MenuItemCategoryModel";
 import {OrderModel} from "../models/OrderModel";
 
 import * as express from 'express';
 
-
 var passport = require('passport');
 
 
-export class Routes {
+export class Routes {       
+
     public waitlist:WaitlistEntryModel;
     public order:OrderModel;
     public restaurantlist:RestaurantModel;
@@ -31,26 +31,21 @@ export class Routes {
         this.menuitem = new MenuItemModel();
         this.menuitemcat = new MenuItemCategoryModel();
     }
-
+	
 	private validateAuth(req, res, next):void {
         if (req.isAuthenticated()) { console.log("user is authenticated"); return next(); }
         console.log("user is not authenticated");
         res.redirect('/');
-    }
+      }
 
     public routes(app): void { 
-
         app.use('/', express.static(__dirname+'/angularDist'));
 		
 		app.get('/auth/google', 
         passport.authenticate('google', 
             
             { scope: ['https://www.googleapis.com/auth/plus.login', 'email'] }
-        ), (req, res) => {
-            console.log('wooo we authenticated, here is our user object:', req.user);
-            // Send the user data back to the browser for now
-            res.json(req.user);
-        }
+        )
     );
 
     app.get('/auth/google/callback', 
@@ -64,33 +59,23 @@ export class Routes {
         res.json(req.user);
     })
 
-    app.get('/logout', function (req, res) {
-        console.log("Inside log out route");
-        req.logout();
-        delete req.user;
-        req.session.destroy(function (err) {
-            console.log("Inside session destroy");
-            res.clearCookie('connect.sid');
-            res.redirect('/#/login');
-        });
-    });
 
          //get all  menuItems 
-            app.route('/menuitems/:restId').get((req: Request, res: Response) => {
+            app.route('/menuitems/:restId').get(this.validateAuth,(req: Request, res: Response) => {
                 var restId = req.params.restId;
                 console.log("Get all menuItems for rest id :"+restId);
                 this.menuitem.retrieveAllMenuBasedOnRestaurant(res,{restaurantID:restId});
            })
 
            //get all  menuItems  by category
-            app.route('/menuitems/:restId/:categoryId').get((req: Request, res: Response) => {
+            app.route('/menuitems/:restId/:categoryId').get(this.validateAuth,(req: Request, res: Response) => {
                 var restId = req.params.restId;
                 var categoryId = req.params.categoryId;
                 console.log("Get all menuItems for rest id : "+restId + "category : "+categoryId);
                 this.menuitem.retrieveAllMenuBasedOnRestaurant(res,{restaurantID:restId,"itemCategory.categoryId": categoryId});
        })
             //add to menuItem of a particular restaurant
-            app.route('/menuitems').post((req: Request, res: Response) => {
+            app.route('/menuitems').post(this.validateAuth,(req: Request, res: Response) => {
                 var menuitems_entry = {
                     "itemID":req.body.itemID,
                     "itemName":req.body.itemName,
@@ -106,7 +91,7 @@ export class Routes {
             })
 
               //add to menuItem category 
-              app.route('/menuitemcategory').post((req: Request, res: Response) => {
+              app.route('/menuitemcategory').post(this.validateAuth,(req: Request, res: Response) => {
                 var menuitems_entry = {
                     "categoryId":req.body.categoryId,
                     "categoryName":req.body.categoryName,
@@ -116,7 +101,7 @@ export class Routes {
             })
 
             //delete  menuItem of a particular restaurant
-            app.route('/menuitems/:restId/:itemID').delete((req: Request, res: Response) => {
+            app.route('/menuitems/:restId/:itemID').delete(this.validateAuth,(req: Request, res: Response) => {
                 var restId = req.params.restId;
                 var itemID = req.params.itemID;
                 this.menuitem.deleteMenuBaseOnRestaurantAndMenuId(res,{"restaurantID":restId,"itemID":itemID});
@@ -165,25 +150,15 @@ export class Routes {
                 this.menuitem.updateMenuBaseOnRestaurantAndMenuId(res,searchCriteria,toBeChanged);
             })
 
-
-        // ------------------------------- WAIT LIST START ---------------------------- //    
         // to get all the waitlist entries
-
-        app.route('/waitlist/').get(this.validateAuth, (req: Request, res: Response) => {
+        app.route('/waitlist/').get((req: Request, res: Response) => {
             console.log('Query all wait lists');
             this.waitlist.retrieveAllWaitlists(res);
         })
 
-        // to get all the waitlist entries in a restaurant
-        app.route('/waitlist/:restId').get((req: Request, res: Response) => {
-            console.log(res.locals.auth);
-            var restuarantId = req.params.restId;
-            console.log("Query all waitlist items from restaurant with id: " + restuarantId);
-            this.waitlist.retrieveAllWaitlistEntriesPerRestaurant(res, restuarantId);
-        })
 
         // set customer as notifed in waitlist
-        app.route('/waitlist/:restaurantID/notify/:queueID').get(this.validateAuth, (req: Request, res: Response) => {
+        app.route('/waitlist/:restaurantID/notify/:queueID').get(this.validateAuth,(req:Request,res:Response) => {
             var restaurantId = req.params.restaurantID;
             var queueID = req.params.queueID;
             console.log("Set customer as notified for " + queueID + " in " + restaurantId);
@@ -191,7 +166,7 @@ export class Routes {
         })
 
         // set customer as confirmed in waitlist
-        app.route('/waitlist/:restaurantID/confirm/:queueID').get((req:Request,res:Response) => {
+        app.route('/waitlist/:restaurantID/confirm/:queueID').get(this.validateAuth,(req:Request,res:Response) => {
             var restaurantId = req.params.restaurantID;
             var queueID = req.params.queueID;
             console.log("Set customer as confirmed for " + queueID + " in " + restaurantId);
@@ -199,7 +174,7 @@ export class Routes {
         })
         
         // remove reservation in waitlist
-        app.route('/waitlist/:restaurantID/:queueID').delete(this.validateAuth, (req: Request, res: Response) => {
+        app.route('/waitlist/:restaurantID/:queueID').delete(this.validateAuth,(req:Request,res:Response) => {
             var restaurantId = req.params.restaurantID;
             var queueID = req.params.queueID;
             console.log("Removing reservation: " + queueID + " in " + restaurantId);
@@ -207,16 +182,17 @@ export class Routes {
         })
 
         // complete a reservation in waitlist
-        app.route('/waitlist/:restaurantID/complete/:queueID').post(this.validateAuth, (req: Request, res: Response) => {
+        app.route('/waitlist/:restaurantID/complete/:queueID').post(this.validateAuth,(req:Request,res:Response) => {
             var restaurantId = req.params.restaurantID;
             var queueID = req.params.queueID;
             console.log("Complete a reservation: " + queueID + " in " + restaurantId);
             this.waitlist.completeRes(res, {restaurantID:restaurantId, queueID:queueID});
+            this.restaurantlist.updateBooktime({restaurantID: restaurantId});
         })
 
 
         // update group size for reservation in waitlist
-        app.route('/waitlist/:restaurantID/:queueID').patch(this.validateAuth, (req: Request, res: Response) => {
+        app.route('/waitlist/:restaurantID/:queueID').patch(this.validateAuth,(req:Request,res:Response) => {
             var restaurantId = req.params.restaurantID;
             var queueID = req.params.queueID;
             var groupSize = req.body.groupSize;
@@ -235,37 +211,42 @@ export class Routes {
             this.waitlist.updateGroupSize(res, searchCriteria, toBeChanged);
         })
 
-        // ------------------------------- WAIT LIST END ---------------------------- // 
+        // to get all the waitlist entries in a restaurant
+        app.route('/waitlist/:restId').get((req: Request, res: Response) => {
+            var restuarantId = req.params.restId;
+            console.log("Query all waitlist items from restaurant with id: " + restuarantId);
+            this.waitlist.retrieveAllWaitlistEntriesPerRestaurant(res, restuarantId);
+        })
 
         //get all customers
-        app.route('/customers').get((req: Request, res: Response) => {
+        app.route('/customers').get(this.validateAuth,(req: Request, res: Response) => {
         console.log("Get all customers"+res);
         this.customerlist.getAllCustomers(res);
     })
 
         // get all customer with given ID
-        app.route('/customers/:customerId').get((req: Request, res: Response) => {
+        app.route('/customers/:customerId').get(this.validateAuth,(req: Request, res: Response) => {
             var customerId = req.params.customerId;
             console.log("Get all customer using ID: " + customerId);
             this.customerlist.getAllCustomersOnFilter(res,{ "customerId": customerId });
         })
 
         // get all customers with given last name
-        app.route('/customers/lastName/:lastName').get((req: Request, res: Response) => {
+        app.route('/customers/lastName/:lastName').get(this.validateAuth,(req: Request, res: Response) => {
             var lastName = req.params.lastName;
             console.log("Get all customer(s) with last name: " + lastName);
             this.customerlist.getAllCustomersOnFilter(res,{ "lastName": lastName });
         })
 
         // get all customers with given first name
-        app.route('/customers/firstName/:firstName').get((req: Request, res: Response) => {
+        app.route('/customers/firstName/:firstName').get(this.validateAuth,(req: Request, res: Response) => {
             var firstName = req.params.firstName;
             console.log("Get all customer(s) with first name: " + firstName);
             this.customerlist.getAllCustomersOnFilter(res,{ "firstName": firstName });
         })
 
         // add to customer to DB
-            app.route('/customers').post((req: Request, res: Response) => {
+            app.route('/customers').post(this.validateAuth,(req: Request, res: Response) => {
                 console.log(req.body);
                 var jsonObj = req.body;
                 jsonObj.customerId = this.idGenerator;
@@ -324,16 +305,19 @@ export class Routes {
             var restaurantId = req.params.restaurantId;
 
             this.order.retrieveOrderPerCustomer(res,{restaurantID:restaurantId,customerId:customerId});
-            
+        })
+
+        app.route('/order/:orderId').get((req: Request, res: Response) =>{
+            var orderId = req.params.orderId;
+            this.order.retrieveOrderPerCustomer(res,{orderId:orderId});
         })
 
         // add to orderCart
         app.route('/orders').post((req: Request, res: Response) => {
-
             console.log("Restaurant id:" + req.body.restaurantID);
-            
 
             var jsonObj = {
+                "orderId": req.body.orderId,
                 "menuItemId" : req.body.menuitemId,
                 "quantity" : req.body.quantity,
                 "orderTime": req.body.orderTime,
