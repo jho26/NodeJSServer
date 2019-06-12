@@ -210,9 +210,9 @@ export class Routes {
         app.route('/waitlist/:restaurantID/complete/:queueID').post(this.validateAuth, (req: Request, res: Response) => {
             var restaurantId = req.params.restaurantID;
             var queueID = req.params.queueID;
+            this.restaurantlist.updateBooktime({restaurantID: restaurantId});
             console.log("Complete a reservation: " + queueID + " in " + restaurantId);
             this.waitlist.completeRes(res, { restaurantID: restaurantId, queueID: queueID });
-            this.restaurantlist.updateBooktime({restaurantID: restaurantId});
         })
 
 
