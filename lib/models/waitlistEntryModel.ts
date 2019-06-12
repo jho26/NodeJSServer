@@ -29,6 +29,7 @@ class WaitlistEntryModel {
                 confirmed:Boolean,
                 completed: Boolean
             }, {
+                collection:'restaurants',
                 versionKey: false // You should be aware of the outcome after set to false
             }
         );
