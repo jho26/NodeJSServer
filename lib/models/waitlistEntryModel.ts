@@ -28,7 +28,9 @@ class WaitlistEntryModel {
                 notified: Boolean,
                 confirmed:Boolean,
                 completed: Boolean
-            },{collection: 'waitlist'}
+            }, {
+                versionKey: false // You should be aware of the outcome after set to false
+            })
         );
     }
 
@@ -37,7 +39,7 @@ class WaitlistEntryModel {
     }
 
     public retrieveAllWaitlists(response:any): any {
-        var query = this.model.find({}).select('-__v');
+        var query = this.model.find({});
         query.exec( (err, itemArray) => {
             response.json(itemArray) ;
         });
@@ -80,7 +82,7 @@ class WaitlistEntryModel {
     }
 
     public retrieveAllWaitlistEntriesPerRestaurant(response:any, restaurantID:Number) {
-        var query = this.model.find({restaurantID: restaurantID, completed: false}.select('-__v'));
+        var query = this.model.find({restaurantID: restaurantID, completed: false});
         query.exec( (err, itemArray) => {
             if(err){
                 response.send("Could not find records!")
